@@ -7,6 +7,17 @@ echo  Generando Ejecutable PDF Consolidator
 echo ========================================
 echo.
 
+REM Cambiar al directorio padre del script (directorio raíz del proyecto)
+cd /d "%~dp0\.."
+
+REM Verificar que estamos en el directorio correcto
+if not exist "main.py" (
+    echo ERROR: No se encuentra main.py. Ejecute desde el directorio raíz del proyecto.
+    echo Directorio actual: %CD%
+    pause
+    exit /b 1
+)
+
 REM Verificar que el entorno virtual esté activo
 python -c "import sys; exit(0 if 'venv' in sys.prefix else 1)" >nul 2>&1
 if errorlevel 1 (
@@ -25,7 +36,7 @@ REM Limpiar builds anteriores
 echo 🧹 Limpiando builds anteriores...
 if exist "dist" rmdir /s /q dist
 if exist "build" rmdir /s /q build
-if exist "main.spec" del main.spec
+if exist "PDFConsolidator.spec" del PDFConsolidator.spec
 
 REM Crear ícono si no existe
 if not exist "assets\icon.ico" (
@@ -55,10 +66,14 @@ if not exist "dist\temp" mkdir "dist\temp"
 if not exist "dist\logs" mkdir "dist\logs"
 
 REM Copiar README de datos general
-copy "data\README.md" "dist\data\" >nul
+if exist "data\README.md" (
+    copy "data\README.md" "dist\data\" >nul
+) else (
+    echo ⚠️  README.md de datos no encontrado, saltando copia
+)
 
 REM Crear README para usuario final
-echo Creando documentación para usuario...
+echo 📋 Creando documentación para usuario...
 (
 echo # PDF Consolidator - Aplicación de Usuario
 echo.
@@ -75,6 +90,11 @@ echo - PDF, Word (.doc/.docx^), Excel (.xlsx^), Imágenes (.jpg/.png/.tif^)
 echo.
 echo ## Soporte
 echo - Contacto: edwin.clavijo@laascension.com
+echo.
+echo ## Versión
+echo - Aplicación: PDF Consolidator v1.2.1
+echo - Empresa: La Ascensión S.A.
+echo - Fecha: %DATE%
 ) > "dist\README.md"
 
 echo.
