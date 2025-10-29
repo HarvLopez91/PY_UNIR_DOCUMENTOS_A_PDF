@@ -314,25 +314,23 @@ class App(Tk):
 
         ensure_dirs()
 
-        # Header con branding
+        # Header centrado con versión y logo de Expansión
         header = Frame(self)
         header.pack(fill="x", pady=8, padx=16)
 
-        # Título a la izquierda
-        title_frame = Frame(header)
-        title_frame.pack(side="left")
-        Label(title_frame, text="Consolidador de Archivos a PDF", 
-              font=("Segoe UI", 12, "bold")).pack(anchor="w")
-        Label(title_frame, text=f"Versión {APP_VERSION}", 
-              font=("Segoe UI", 9)).pack(anchor="w")
+        # Contenedor centrado para versión y logo
+        center_frame = Frame(header)
+        center_frame.pack(expand=True)
+        
+        # Versión centrada
+        Label(center_frame, text=f"Versión {APP_VERSION}", 
+              font=("Segoe UI", 9)).pack(pady=(0, 4))
 
-        # Logo de Expansión a la derecha
-        logo_frame = Frame(header)
-        logo_frame.pack(side="right")
+        # Logo de Expansión centrado
         try:
             if LOGO_EXPANSION.exists():
                 self.logo_expansion = PhotoImage(file=resource_path(LOGO_EXPANSION))
-                Label(logo_frame, image=self.logo_expansion).pack()
+                Label(center_frame, image=self.logo_expansion).pack()
         except Exception as e:
             logger.warning(f"No se pudo cargar logo de Expansión: {e}")
 
