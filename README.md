@@ -193,7 +193,7 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más det
 
 Para soporte técnico o reporte de bugs, por favor contacte:
 
-- **Email**: <desarrollo@laascension.com>
+- **Email**: <edwin.clavijo@laascension.com>
 - **Issues**: [GitHub Issues](https://github.com/HarvLopez91/PY_UNIR_DOCUMENTOS_A_PDF/issues)
 
 ## 🏷️ Versión

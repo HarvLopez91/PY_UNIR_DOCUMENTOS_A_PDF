@@ -7,7 +7,7 @@ documentos de diferentes formatos en un único archivo PDF.
 
 __version__ = "1.2.0"
 __author__ = "La Ascensión S.A"
-__email__ = "desarrollo@laascension.com"
+__email__ = "edwin.clavijo@laascension.com"
 
 from .main import main
 from .converter import DocumentConverter

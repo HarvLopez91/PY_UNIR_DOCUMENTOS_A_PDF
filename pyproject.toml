@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
-    {name = "La Ascensión S.A", email = "desarrollo@laascension.com"}
+    {name = "La Ascensión S.A", email = "edwin.clavijo@laascension.com"}
 ]
 keywords = ["pdf", "consolidation", "documents", "tkinter", "gui"]
 classifiers = [
