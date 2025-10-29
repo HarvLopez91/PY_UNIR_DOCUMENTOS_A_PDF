@@ -172,3 +172,26 @@ feat: Agregar funcionalidad de conversión de PowerPoint
 - Validar campos de entrada antes de procesar
 - Mostrar progreso para operaciones que toman tiempo
 - Permitir cancelación de operaciones largas
+
+## Políticas de Testing y Pruebas
+
+### Ejecución de Tests
+- **Ubicación exclusiva**: Ejecutar todos los tests únicamente en la carpeta `tests/` del repositorio
+- **Aislamiento**: No crear archivos de prueba fuera del directorio `tests/`
+- **Organización**: Mantener estructura clara dentro de `tests/` para diferentes tipos de pruebas
+
+### Limpieza Post-Pruebas
+- **Archivos generados**: Eliminar automáticamente todos los archivos generados durante las pruebas
+- **Archivos temporales**: Limpiar completamente cualquier archivo temporal creado
+- **Estado limpio**: Dejar el directorio `tests/` en estado original tras la ejecución
+
+### Archivos de Documentación de Pruebas
+- **Archivos .md**: Si se crean archivos Markdown para revisión, **consultar antes de eliminarlos**
+- **Reportes de prueba**: Preguntar al usuario si desea conservar reportes o documentación generada
+- **Logs de testing**: Mantener logs solo si se solicita explícitamente
+
+### Mejores Prácticas
+- Usar fixtures y datos de prueba contenidos en `tests/fixtures/`
+- Crear tests independientes que no dependan de estado externo
+- Validar limpieza automática al final de cada suite de pruebas
+- Proporcionar resumen de resultados antes de la limpieza
