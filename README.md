@@ -185,9 +185,11 @@ La aplicación genera logs detallados en la carpeta `logs/`:
 4. Push a la rama (`git push origin feature/AmazingFeature`)
 5. Abra un Pull Request
 
-## 📄 Licencia
+## 📄 Licencia / Uso
 
-Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
+**Uso interno de La Ascensión S.A. – Experiencia del Cliente.**
+
+Este proyecto está desarrollado específicamente para uso interno de La Ascensión S.A. en el área de Experiencia del Cliente. El software está bajo la Licencia MIT para propósitos de desarrollo y mantenimiento. Ver el archivo `LICENSE` para más detalles técnicos de la licencia.
 
 ## 📞 Soporte
 
