@@ -1,4 +1,4 @@
-# Directorio de PDFs Consolidados
+# Directorio de PDFs Consolidados (Output)
 
 Este directorio contiene los archivos PDF resultantes del proceso de consolidación.
 

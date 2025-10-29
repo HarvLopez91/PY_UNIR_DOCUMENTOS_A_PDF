@@ -194,10 +194,10 @@ Cargo.lock
 
 # Application-specific
 /logs/*.log
-/TEMP_CONVERSION/*
-!/TEMP_CONVERSION/README.md
-/CONSOLIDADOS/*.pdf
-!/CONSOLIDADOS/README.md
+/temp/*
+!/temp/README.md
+/data/output/*.pdf
+!/data/output/README.md
 
 # OS specific
 .DS_Store

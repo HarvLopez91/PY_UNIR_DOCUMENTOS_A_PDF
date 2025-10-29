@@ -65,14 +65,14 @@ python main.py
 
 ### Flujo de trabajo
 
-1. **Preparar documentos**: Coloque todos los documentos en la carpeta `ARCHIVOS/`
+1. **Preparar documentos**: Coloque todos los documentos en la carpeta `data/input/`
 2. **Ejecutar aplicación**: Inicie `main.py`
 3. **Completar formulario**:
    - Identificación del cliente
    - Nombre del cliente
    - Número de reembolso
 4. **Procesar**: Haga clic en "Consolidar PDFs"
-5. **Resultado**: El PDF consolidado se guardará en `CONSOLIDADOS/`
+5. **Resultado**: El PDF consolidado se guardará en `data/output/`
 
 ### Formatos soportados
 
@@ -100,10 +100,9 @@ PY_UNIR_DOCUMENTOS_A_PDF/
 │   ├── app_config.json
 │   └── logging_config.json
 ├── data/                   # Datos de la aplicación
-│   └── input/             # Datos de entrada
-├── ARCHIVOS/              # [Usuario] Documentos de entrada
-├── CONSOLIDADOS/          # [Salida] PDFs consolidados
-├── TEMP_CONVERSION/       # [Temporal] Archivos de conversión
+│   ├── input/             # [Usuario] Documentos de entrada
+│   └── output/            # [Salida] PDFs consolidados
+├── temp/                  # [Temporal] Archivos de conversión
 ├── assets/                # Recursos gráficos
 ├── logs/                  # Archivos de log
 ├── .github/               # Configuración GitHub

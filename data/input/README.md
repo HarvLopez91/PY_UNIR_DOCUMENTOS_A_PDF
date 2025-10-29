@@ -1,4 +1,4 @@
-# Directorio de Archivos de Entrada
+# Directorio de Archivos de Entrada (Input)
 
 Este directorio contiene todos los documentos que serán procesados y consolidados en un único PDF.
 

@@ -1,4 +1,4 @@
-# Directorio Temporal de Conversión
+# Directorio Temporal (Temp)
 
 Este directorio se utiliza para almacenar archivos temporales durante el proceso de conversión de documentos a PDF.
 

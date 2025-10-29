@@ -25,9 +25,9 @@ except Exception:
 # Configuración general
 # =============================
 APP_VERSION = "v1.2.1"
-INPUT_DIR = Path("ARCHIVOS")
-OUTPUT_DIR = Path("CONSOLIDADOS")
-TEMP_DIR = Path("TEMP_CONVERSION")
+INPUT_DIR = Path("data/input")
+OUTPUT_DIR = Path("data/output")
+TEMP_DIR = Path("temp")
 LOG_DIR = Path("logs")
 ASSETS_DIR = Path("assets")  # coloca aquí tus imágenes
 LOGO_EMPRESA = ASSETS_DIR / "logo_empresa.png"   # <-- agrega tus imágenes si quieres
@@ -338,8 +338,8 @@ class App(Tk):
         btns = Frame(files_frame)
         btns.pack(side="left", padx=8)
         Button(btns, text="Actualizar", command=self.reload_files).pack(fill="x", pady=2)
-        Button(btns, text="Abrir ARCHIVOS", command=lambda: self.open_folder(INPUT_DIR)).pack(fill="x", pady=2)
-        Button(btns, text="Abrir CONSOLIDADOS", command=lambda: self.open_folder(OUTPUT_DIR)).pack(fill="x", pady=2)
+        Button(btns, text="Abrir INPUT", command=lambda: self.open_folder(INPUT_DIR)).pack(fill="x", pady=2)
+        Button(btns, text="Abrir OUTPUT", command=lambda: self.open_folder(OUTPUT_DIR)).pack(fill="x", pady=2)
 
         # Progreso y acciones
         bottom = Frame(self)
@@ -363,7 +363,7 @@ class App(Tk):
         self.listbox.delete(0, END)
         files = list_input_files()
         if not files:
-            self.listbox.insert(END, "(No hay documentos en la carpeta ARCHIVOS)")
+            self.listbox.insert(END, "(No hay documentos en la carpeta data/input)")
             self.btn_convert.configure(state="disabled")
         else:
             for f in files:
@@ -465,20 +465,20 @@ class App(Tk):
         self.open_folder(OUTPUT_DIR)
         self.clear_form_and_input()
 
-        # Tras limpiar ARCHIVOS, el botón quedará deshabilitado por reload_files().
+        # Tras limpiar data/input, el botón quedará deshabilitado por reload_files().
         # Si hubiera archivos (p. ej., el usuario ya colocó nuevos), se habilitará.
         if list_input_files():
             self.btn_convert.configure(state="normal")
 
     def clear_form_and_input(self):
-        """Limpia los 3 campos del formulario y elimina el contenido de ARCHIVOS."""
+        """Limpia los 3 campos del formulario y elimina el contenido de data/input."""
         try:
             # Limpiar campos del formulario
             self.var_ident.set("")
             self.var_cliente.set("")
             self.var_reembolso.set("")
 
-            # Vaciar carpeta ARCHIVOS (manteniendo la carpeta)
+            # Vaciar carpeta data/input (manteniendo la carpeta)
             if INPUT_DIR.exists():
                 for path in INPUT_DIR.iterdir():
                     try:
