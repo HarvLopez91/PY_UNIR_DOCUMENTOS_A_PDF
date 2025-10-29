@@ -1,11 +1,14 @@
-# Core dependencies for PDF consolidation
-img2pdf>=0.4.4
-pypdf>=3.0.0
+# Dependencias de producción para PDF Consolidator
+# Core libraries
+img2pdf>=0.5.0
+pypdf>=3.16.0
+pyinstaller>=6.0.0
+
+# Windows Office automation (only on Windows)
 pywin32>=306; sys_platform == "win32"
 
-# Development dependencies
-black>=23.0.0
-flake8>=6.0.0
-mypy>=1.0.0
-pytest>=7.0.0
-pytest-cov>=4.0.0
+# Standard library dependencies (usually included with Python)
+# pathlib - included in Python 3.4+
+# tkinter - included with most Python installations
+# logging - included in Python standard library
+# unicodedata - included in Python standard library
