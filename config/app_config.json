@@ -1,0 +1,30 @@
+{
+  "app": {
+    "name": "PDF Consolidator",
+    "version": "1.2.0",
+    "window": {
+      "title": "Consolidador de PDFs - La Ascensión S.A",
+      "width": 800,
+      "height": 600,
+      "resizable": true
+    }
+  },
+  "directories": {
+    "input": "ARCHIVOS",
+    "output": "CONSOLIDADOS", 
+    "temp": "TEMP_CONVERSION",
+    "assets": "assets",
+    "logs": "logs"
+  },
+  "conversion": {
+    "supported_extensions": [".pdf", ".docx", ".xlsx", ".jpg", ".jpeg", ".png", ".tif", ".tiff"],
+    "image_quality": 95,
+    "pdf_compression": true,
+    "preserve_order": true
+  },
+  "security": {
+    "validate_file_types": true,
+    "sanitize_filenames": true,
+    "max_file_size_mb": 100
+  }
+}
