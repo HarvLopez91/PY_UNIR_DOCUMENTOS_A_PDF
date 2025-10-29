@@ -32,6 +32,7 @@ LOG_DIR = Path("logs")
 ASSETS_DIR = Path("assets")  # coloca aquí tus imágenes
 LOGO_EMPRESA = ASSETS_DIR / "logo_empresa.png"   # <-- agrega tus imágenes si quieres
 LOGO_CAMPANA = ASSETS_DIR / "logo_campana.png"   # <-- agrega tus imágenes si quieres
+LOGO_EXPANSION = ASSETS_DIR / "Expansión.png"   # Logo de Expansión
 
 # Extensiones de archivos soportadas por categoría
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".tif", ".tiff"}
@@ -41,6 +42,9 @@ PDF_EXTS = {".pdf"}
 
 ALLOWED_EXTS = IMAGE_EXTS | WORD_EXTS | EXCEL_EXTS | PDF_EXTS
 INVALID_FS_CHARS = r'<>:"/\\|?*'  # Windows
+
+# Archivos que se deben excluir del procesamiento
+EXCLUDED_FILES = {"README.md", "readme.md", "README.txt", "readme.txt"}
 
 # Constantes para formatos de exportación Office
 WD_FORMAT_PDF = 17  # Word PDF export format
@@ -109,7 +113,9 @@ def list_input_files() -> list[Path]:
         return []
     files = []
     for f in INPUT_DIR.iterdir():
-        if f.is_file() and f.suffix.lower() in ALLOWED_EXTS:
+        if (f.is_file() and 
+            f.suffix.lower() in ALLOWED_EXTS and 
+            f.name not in EXCLUDED_FILES):
             files.append(f)
     files.sort(key=lambda p: p.name.lower())  # orden alfabético
     return files
@@ -163,11 +169,18 @@ def convert_word_to_pdf(src: Path, dst_pdf: Path):
         word = win32.DispatchEx("Word.Application")
         word.Visible = False
         
-        # Abrir documento (funciona tanto para .doc como .docx)
-        doc = word.Documents.Open(str(src))
+        # Asegurar ruta absoluta para MS Word
+        src_absolute = src.resolve()
+        dst_absolute = dst_pdf.resolve()
         
-        # Exportar como PDF
-        doc.ExportAsFixedFormat(str(dst_pdf), WD_FORMAT_PDF)
+        logger.debug(f"Ruta absoluta origen: {src_absolute}")
+        logger.debug(f"Ruta absoluta destino: {dst_absolute}")
+        
+        # Abrir documento (funciona tanto para .doc como .docx)
+        doc = word.Documents.Open(str(src_absolute))
+        
+        # Exportar como PDF usando ruta absoluta
+        doc.ExportAsFixedFormat(str(dst_absolute), WD_FORMAT_PDF)
         doc.Close(False)
         
         logger.info(f"Word -> PDF completado: {dst_pdf.name}")
@@ -203,11 +216,18 @@ def convert_excel_to_pdf(src: Path, dst_pdf: Path):
         excel = win32.DispatchEx("Excel.Application")
         excel.Visible = False
         
-        # Abrir libro (funciona tanto para .xls como .xlsx)
-        wb = excel.Workbooks.Open(str(src))
+        # Asegurar ruta absoluta para MS Excel
+        src_absolute = src.resolve()
+        dst_absolute = dst_pdf.resolve()
         
-        # Exportar como PDF
-        wb.ExportAsFixedFormat(XL_TYPE_PDF, str(dst_pdf))
+        logger.debug(f"Ruta absoluta origen: {src_absolute}")
+        logger.debug(f"Ruta absoluta destino: {dst_absolute}")
+        
+        # Abrir libro (funciona tanto para .xls como .xlsx)
+        wb = excel.Workbooks.Open(str(src_absolute))
+        
+        # Exportar como PDF usando ruta absoluta
+        wb.ExportAsFixedFormat(XL_TYPE_PDF, str(dst_absolute))
         wb.Close(False)
         
         logger.info(f"Excel -> PDF completado: {dst_pdf.name}")
@@ -294,20 +314,40 @@ class App(Tk):
 
         ensure_dirs()
 
-        # Branding (opcional)
-        top = Frame(self)
-        top.pack(pady=8)
+        # Header con branding
+        header = Frame(self)
+        header.pack(fill="x", pady=8, padx=16)
+
+        # Título a la izquierda
+        title_frame = Frame(header)
+        title_frame.pack(side="left")
+        Label(title_frame, text="Consolidador de Archivos a PDF", 
+              font=("Segoe UI", 12, "bold")).pack(anchor="w")
+        Label(title_frame, text=f"Versión {APP_VERSION}", 
+              font=("Segoe UI", 9)).pack(anchor="w")
+
+        # Logo de Expansión a la derecha
+        logo_frame = Frame(header)
+        logo_frame.pack(side="right")
+        try:
+            if LOGO_EXPANSION.exists():
+                self.logo_expansion = PhotoImage(file=resource_path(LOGO_EXPANSION))
+                Label(logo_frame, image=self.logo_expansion).pack()
+        except Exception as e:
+            logger.warning(f"No se pudo cargar logo de Expansión: {e}")
+
+        # Logos adicionales (empresa y campaña) en la parte inferior del header
+        branding = Frame(self)
+        branding.pack(pady=4)
         try:
             if LOGO_EMPRESA.exists():
                 self.logo_emp = PhotoImage(file=resource_path(LOGO_EMPRESA))
-                Label(top, image=self.logo_emp).pack(side="left", padx=8)
+                Label(branding, image=self.logo_emp).pack(side="left", padx=8)
             if LOGO_CAMPANA.exists():
                 self.logo_camp = PhotoImage(file=resource_path(LOGO_CAMPANA))
-                Label(top, image=self.logo_camp).pack(side="left", padx=8)
+                Label(branding, image=self.logo_camp).pack(side="left", padx=8)
         except Exception as e:
-            logger.warning(f"No se pudieron cargar logos: {e}")
-
-        Label(self, text=f"Versión {APP_VERSION}", font=("Segoe UI", 9)).pack()
+            logger.warning(f"No se pudieron cargar logos adicionales: {e}")
 
         form = Frame(self)
         form.pack(pady=10, fill="x", padx=16)

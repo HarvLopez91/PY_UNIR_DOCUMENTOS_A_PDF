@@ -72,9 +72,10 @@ REM Crear directorios necesarios
 echo.
 echo Creando estructura de directorios...
 if not exist "logs" mkdir logs
-if not exist "TEMP_CONVERSION" mkdir TEMP_CONVERSION
-if not exist "CONSOLIDADOS" mkdir CONSOLIDADOS
-if not exist "ARCHIVOS" mkdir ARCHIVOS
+if not exist "temp" mkdir temp
+if not exist "data" mkdir data
+if not exist "data\input" mkdir data\input
+if not exist "data\output" mkdir data\output
 echo ✓ Estructura de directorios creada
 
 echo.

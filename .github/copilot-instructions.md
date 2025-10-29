@@ -93,6 +93,14 @@ def function_name(param1: str, param2: int) -> bool:
 
 ## Reglas de Desarrollo
 
+### Política de Reutilización de Archivos
+- **OBLIGATORIO**: Antes de crear nuevos archivos, verificar si ya existe uno que cumpla el mismo objetivo
+- **Verificación completa**: Buscar en todo el proyecto (archivos .py, .bat, .sh, .md, .txt, etc.)
+- **Reutilización primera**: Si existe un archivo similar, reutilizarlo o ampliarlo en lugar de duplicarlo
+- **Nomenclatura coherente**: Mantener consistencia en nombres de archivos relacionados
+- **Documentación**: Si se modifica un archivo existente, actualizar su documentación interna
+- **Evitar redundancia**: No crear archivos que implementen la misma funcionalidad
+
 ### Al Agregar Nuevas Funcionalidades
 1. **Mantener compatibilidad**: Asegurar que funcione en Windows con MS Office
 2. **Validar entradas**: Verificar tipos de archivo y contenido antes del procesamiento
@@ -115,11 +123,33 @@ def function_name(param1: str, param2: int) -> bool:
 
 ### Entrada
 - **PDF**: `.pdf` - Procesamiento directo con pypdf
-- **Office**: `.docx`, `.xlsx` - Conversión via COM automation (Windows)
+- **Office**: `.doc`, `.docx`, `.xlsx` - Conversión via COM automation (Windows)
 - **Imágenes**: `.jpg`, `.jpeg`, `.png`, `.tif`, `.tiff` - Conversión con img2pdf
 
 ### Salida
 - **PDF consolidado**: Nombre formato `{identificacion}_{cliente}_{reembolso}.pdf`
+
+## Ejecución y Distribución
+
+### Modo Desarrollador
+1. **Activar entorno virtual**: `venv\Scripts\activate`
+2. **Ejecutar aplicación**: `python main.py`
+3. **Desarrollo con hot-reload**: Modificar código y re-ejecutar
+4. **Debugging**: Usar logs en directorio `logs/` para troubleshooting
+
+### Modo Usuario (Distribución)
+1. **Generar ejecutable**: Usar `scripts\build_exe.bat` tras cada cambio
+2. **Carpeta dist**: Contiene la distribución completa para usuarios finales
+3. **Estructura dist**: `PDFConsolidator.exe` + carpetas `data/`, `temp/`, `logs/`
+4. **Entrega**: Comprimir carpeta `dist/` completa y entregar al usuario
+5. **Instalación**: Usuario descomprime y ejecuta `PDFConsolidator.exe`
+
+### Política de Distribución
+- **OBLIGATORIO**: Generar nuevo `.exe` tras cada modificación de código
+- **Carpeta dist**: Es la versión completa para usuarios finales (no desarrolladores)
+- **Testing**: Probar el `.exe` generado antes de distribución
+- **Versionado**: Actualizar `APP_VERSION` en `main.py` con cada release
+- **Documentación**: README.md específico incluido en `dist/` para usuarios
 
 ## Convenciones de Commit
 
@@ -154,6 +184,14 @@ feat: Agregar funcionalidad de conversión de PowerPoint
 - Incluir contexto relevante cuando sea necesario
 - Limitar la primera línea a 50 caracteres cuando sea posible
 - Usar viñetas para enumerar cambios específicos
+
+### Política de Pruebas Pre-Commit
+- **OBLIGATORIO**: Realizar pruebas de la aplicación antes de cualquier commit
+- **Verificación funcional**: Probar que la aplicación ejecuta correctamente
+- **Validación de cambios**: Verificar que las modificaciones funcionan como se espera
+- **Pruebas de regresión**: Confirmar que no se rompió funcionalidad existente
+- **Testing en directorio tests/**: Ejecutar pruebas formales cuando sea aplicable
+- **Documentar resultados**: Incluir en el mensaje de commit si las pruebas fueron exitosas
 
 ## Consideraciones Especiales
 
