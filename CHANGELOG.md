@@ -5,6 +5,32 @@ Todos los cambios notables de este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto adhiere al [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2025-10-30
+
+### Fixed
+
+- **Optimización crítica de rendimiento**: Implementación de reutilización de instancias COM para conversión de documentos Word/Excel
+  - Archivos .doc ahora se convierten ~59-82% más rápido
+  - Tiempo total del proceso reducido de ~12.8s a ~4.2s (67% mejora)
+  - Configuraciones optimizadas: deshabilita alertas, actualizaciones de pantalla, conversiones automáticas
+- **Sistema de versionado centralizado**: Implementación de archivo `VERSION` como fuente única de verdad
+  - Elimina duplicación de versiones en código
+  - Sincronización automática entre UI y documentación
+- **Limpieza mejorada de recursos**: Instancias COM se limpian al finalizar proceso completo (no por archivo)
+- **Feedback visual mejorado**: Progreso en tiempo real durante conversiones
+
+### Changed
+
+- `APP_VERSION` ahora lee dinámicamente desde archivo `VERSION`
+- README.md sincronizado con versión actual
+- Implementación de locks thread-safe para operaciones COM
+
+### Technical
+
+- Migración de instancias COM por archivo a instancias reutilizables globales
+- Parámetros optimizados para apertura de documentos Office (ReadOnly, sin conversiones)
+- Sistema de logging mejorado para monitoreo de rendimiento
+
 ## [1.2.0] - 2025-10-29
 
 ### Added

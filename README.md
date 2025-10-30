@@ -199,6 +199,8 @@ Para soporte técnico o reporte de bugs, por favor contacte:
 
 ## 🏷️ Versión
 
-**Versión actual**: 1.2.0
+**Versión actual**: 1.2.1
+
+> La versión se define en el archivo `VERSION` como fuente única de verdad.
 
 Ver [CHANGELOG.md](CHANGELOG.md) para el historial de cambios.

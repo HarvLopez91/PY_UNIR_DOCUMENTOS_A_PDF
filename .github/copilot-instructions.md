@@ -233,3 +233,64 @@ feat: Agregar funcionalidad de conversión de PowerPoint
 - Crear tests independientes que no dependan de estado externo
 - Validar limpieza automática al final de cada suite de pruebas
 - Proporcionar resumen de resultados antes de la limpieza
+
+## Política de Versionado (OBLIGATORIA)
+
+### Fuente Única de la Versión
+- **ARCHIVO VERSION**: La versión del proyecto se define SOLO en el archivo raíz `VERSION` (ej.: `1.2.1`)
+- **CONSUMO OBLIGATORIO**: La UI, README, CHANGELOG y scripts de build **deben leer** desde `VERSION`
+- **PROHIBICIÓN**: Está prohibido "hardcodear" la versión en múltiples archivos
+
+### SemVer en Desarrollo
+- **MAJOR**: Cambios incompatibles que rompen la API existente
+- **MINOR**: Nuevas funciones compatibles con versiones anteriores
+- **PATCH**: Correcciones (bugfix), documentación menor o ajustes no funcionales
+
+### Cuándo Incrementar Versión
+- **PATCH**: Si se corrige un bug, mejora de rendimiento, optimización
+- **MINOR**: Si se añade funcionalidad sin romper compatibilidad
+- **MAJOR**: Si hay cambios incompatibles con versiones anteriores
+
+### Archivos que Deben Sincronizarse SIEMPRE
+- `VERSION` → fuente de verdad única
+- Banner/Acerca de la app (UI) → debe leer desde `VERSION`
+- `README.md` (sección "Versión actual") → debe referenciar `VERSION`
+- `CHANGELOG.md` (entrada con fecha y resumen) → debe documentar cambios
+- Metadatos de empaquetado/build si aplican
+
+### Checklist Previo a Commit de Versión
+1. **Verificar centralización**: Confirmar que **todos** los lugares consumen `VERSION` (sin duplicados)
+2. **Actualizar CHANGELOG.md** con:
+   - Versión, fecha, categoría (feat/fix/refactor/docs/perf)
+   - Bullets claros de qué cambió, por qué y cómo impacta
+   - Sección Technical para cambios internos
+3. **Confirmar UI**: Verificar que la interfaz muestra la versión correcta
+4. **Ejecutar pruebas**: Realizar tests básicos y verificación de arranque
+5. **Validar build**: Confirmar que el ejecutable se genera correctamente
+
+### Formato de Commit y Tagging
+- **Mensaje de commit** (formato estricto):
+  ```
+  chore(release): vX.Y.Z
+  
+  - Sincroniza UI, README y CHANGELOG con VERSION
+  - [Resumen breve de cambios principales]
+  - [Categoría: feat/fix/perf/refactor/docs]
+  ```
+- **Tras aprobación**: Crear tag anotado `vX.Y.Z` y push de tags
+
+### Acción de Copilot (OBLIGATORIA)
+- **Detección previa**: Antes de proponer un bump, detectar **desalineaciones** entre `VERSION`, UI y docs
+- **Presentar diff**: Mostrar diferencias encontradas para corrección
+- **No destructivo**: No ejecutar cambios sin confirmación del usuario
+- **Sugerencia inteligente**: 
+  - Para bugfix (ej. corrección de `.doc`) → **sugerir PATCH** (ej.: `1.2.0 → 1.2.1`)
+  - Para nueva función → **sugerir MINOR** (ej.: `1.2.1 → 1.3.0`)
+  - Para breaking changes → **sugerir MAJOR** (ej.: `1.3.0 → 2.0.0`)
+
+### Criterios de Aceptación
+- **Origen único**: Un solo archivo `VERSION` y **0 strings duplicados** de versión en código
+- **Sincronización perfecta**: README y UI muestran exactamente la misma versión
+- **Documentación completa**: `CHANGELOG.md` actualizado y coherente con el commit
+- **Tag válido**: Tag `vX.Y.Z` existente y sincronizado con `VERSION`
+- **Build funcional**: Ejecutable generado correctamente con nueva versión

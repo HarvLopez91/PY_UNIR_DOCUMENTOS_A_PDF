@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import time
 import shutil
 import logging
 import unicodedata
@@ -20,11 +21,28 @@ try:
 except Exception:
     HAS_WIN32 = False
 
+# Threading para optimizaciones
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
 
 # =============================
 # Configuración general
 # =============================
-APP_VERSION = "v1.2.1"
+
+def get_app_version() -> str:
+    """Lee la versión de la aplicación desde el archivo VERSION."""
+    try:
+        version_file = Path(__file__).parent / "VERSION"
+        if version_file.exists():
+            return f"v{version_file.read_text().strip()}"
+        else:
+            # Fallback si no existe el archivo VERSION
+            return "v1.2.1"
+    except Exception:
+        return "v1.2.1"
+
+APP_VERSION = get_app_version()
 INPUT_DIR = Path("data/input")
 OUTPUT_DIR = Path("data/output")
 TEMP_DIR = Path("temp")
@@ -32,7 +50,8 @@ LOG_DIR = Path("logs")
 ASSETS_DIR = Path("assets")  # coloca aquí tus imágenes
 LOGO_EMPRESA = ASSETS_DIR / "logo_empresa.png"   # <-- agrega tus imágenes si quieres
 LOGO_CAMPANA = ASSETS_DIR / "logo_campana.png"   # <-- agrega tus imágenes si quieres
-LOGO_EXPANSION = ASSETS_DIR / "Expansión.png"   # Logo de Expansión
+LOGO_EXPANSION = ASSETS_DIR / "Expansión.png"   # Logo de Expansión (header centrado)
+LOGO_ASCENSION = ASSETS_DIR / "LogoLApng-1920w.webp"   # Logo de La Ascensión (icono app/ventana)
 
 # Extensiones de archivos soportadas por categoría
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".tif", ".tiff"}
@@ -49,6 +68,15 @@ EXCLUDED_FILES = {"README.md", "readme.md", "README.txt", "readme.txt"}
 # Constantes para formatos de exportación Office
 WD_FORMAT_PDF = 17  # Word PDF export format
 XL_TYPE_PDF = 0     # Excel PDF export format
+
+# =============================
+# Optimizaciones de rendimiento
+# =============================
+# Variables globales para reutilizar instancias COM
+_word_app = None
+_excel_app = None
+_word_lock = threading.Lock()
+_excel_lock = threading.Lock()
 
 
 # =============================
@@ -124,6 +152,60 @@ def list_input_files() -> list[Path]:
 # =============================
 # Conversión a PDF por tipo
 # =============================
+
+def get_word_instance():
+    """Obtiene una instancia reutilizable de Word COM para mejor rendimiento."""
+    global _word_app
+    try:
+        if _word_app is None:
+            _word_app = win32.DispatchEx("Word.Application")
+            _word_app.Visible = False
+            # Optimizaciones de rendimiento para Word
+            _word_app.Options.DoNotPromptForConvert = True
+            _word_app.Options.ConfirmConversions = False
+            _word_app.DisplayAlerts = False
+        return _word_app
+    except Exception as e:
+        logger.error(f"Error creando instancia de Word: {e}")
+        return None
+
+def get_excel_instance():
+    """Obtiene una instancia reutilizable de Excel COM para mejor rendimiento."""
+    global _excel_app
+    try:
+        if _excel_app is None:
+            _excel_app = win32.DispatchEx("Excel.Application")
+            _excel_app.Visible = False
+            _excel_app.DisplayAlerts = False
+            # Optimizaciones de rendimiento para Excel
+            _excel_app.ScreenUpdating = False
+            _excel_app.EnableEvents = False
+            _excel_app.Calculation = -4135  # xlCalculationManual
+        return _excel_app
+    except Exception as e:
+        logger.error(f"Error creando instancia de Excel: {e}")
+        return None
+
+def cleanup_office_instances():
+    """Limpia las instancias COM reutilizables al finalizar."""
+    global _word_app, _excel_app
+    
+    if _word_app:
+        try:
+            _word_app.Quit()
+        except:
+            pass
+        finally:
+            _word_app = None
+    
+    if _excel_app:
+        try:
+            _excel_app.Quit()
+        except:
+            pass
+        finally:
+            _excel_app = None
+
 def convert_image_to_pdf(src: Path, dst_pdf: Path):
     """Convierte JPG/PNG/TIF a PDF. Usa Pillow para TIFF multipágina; img2pdf para el resto."""
     dst_pdf.parent.mkdir(parents=True, exist_ok=True)
@@ -152,6 +234,7 @@ def convert_image_to_pdf(src: Path, dst_pdf: Path):
 def convert_word_to_pdf(src: Path, dst_pdf: Path):
     """
     Convierte documentos Word (.doc/.docx) a PDF usando Microsoft Word vía COM.
+    Versión optimizada que reutiliza instancia de Word para mejor rendimiento.
     
     Args:
         src: Ruta del archivo Word de origen
@@ -163,42 +246,50 @@ def convert_word_to_pdf(src: Path, dst_pdf: Path):
     if not HAS_WIN32:
         raise RuntimeError("Conversión de documentos Word requiere Windows + pywin32 + MS Office.")
     
-    word = None
-    try:
-        logger.info(f"Iniciando conversión Word -> PDF: {src.name}")
-        word = win32.DispatchEx("Word.Application")
-        word.Visible = False
+    with _word_lock:  # Sincronización para thread safety
+        word = get_word_instance()
+        if not word:
+            raise RuntimeError("No se pudo obtener instancia de Word")
         
-        # Asegurar ruta absoluta para MS Word
-        src_absolute = src.resolve()
-        dst_absolute = dst_pdf.resolve()
-        
-        logger.debug(f"Ruta absoluta origen: {src_absolute}")
-        logger.debug(f"Ruta absoluta destino: {dst_absolute}")
-        
-        # Abrir documento (funciona tanto para .doc como .docx)
-        doc = word.Documents.Open(str(src_absolute))
-        
-        # Exportar como PDF usando ruta absoluta
-        doc.ExportAsFixedFormat(str(dst_absolute), WD_FORMAT_PDF)
-        doc.Close(False)
-        
-        logger.info(f"Word -> PDF completado: {dst_pdf.name}")
-        
-    except Exception as e:
-        logger.error(f"Error convirtiendo {src.name}: {e}")
-        raise
-    finally:
-        if word:
-            try:
-                word.Quit()
-            except Exception as e:
-                logger.warning(f"Error cerrando Word: {e}")
+        try:
+            logger.info(f"Iniciando conversión Word -> PDF (optimizada): {src.name}")
+            
+            # Asegurar ruta absoluta para MS Word
+            src_absolute = src.resolve()
+            dst_absolute = dst_pdf.resolve()
+            
+            logger.debug(f"Ruta absoluta origen: {src_absolute}")
+            logger.debug(f"Ruta absoluta destino: {dst_absolute}")
+            
+            # Abrir documento con configuraciones optimizadas
+            doc = word.Documents.Open(
+                str(src_absolute),
+                False,  # ConfirmConversions
+                True,   # ReadOnly
+                False,  # AddToRecentFiles
+                "",     # PasswordDocument
+                "",     # PasswordTemplate
+                False,  # Revert
+                "",     # WritePasswordDocument
+                "",     # WritePasswordTemplate
+                0       # Format
+            )
+            
+            # Exportar como PDF usando ruta absoluta
+            doc.ExportAsFixedFormat(str(dst_absolute), WD_FORMAT_PDF)
+            doc.Close(False)
+            
+            logger.info(f"Word -> PDF optimizado completado: {dst_pdf.name}")
+            
+        except Exception as e:
+            logger.error(f"Error convirtiendo {src.name}: {e}")
+            raise
 
 
 def convert_excel_to_pdf(src: Path, dst_pdf: Path):
     """
     Convierte documentos Excel (.xls/.xlsx) a PDF usando Microsoft Excel vía COM.
+    Versión optimizada que reutiliza instancia de Excel para mejor rendimiento.
     
     Args:
         src: Ruta del archivo Excel de origen
@@ -210,37 +301,47 @@ def convert_excel_to_pdf(src: Path, dst_pdf: Path):
     if not HAS_WIN32:
         raise RuntimeError("Conversión de documentos Excel requiere Windows + pywin32 + MS Office.")
     
-    excel = None
-    try:
-        logger.info(f"Iniciando conversión Excel -> PDF: {src.name}")
-        excel = win32.DispatchEx("Excel.Application")
-        excel.Visible = False
+    with _excel_lock:  # Sincronización para thread safety
+        excel = get_excel_instance()
+        if not excel:
+            raise RuntimeError("No se pudo obtener instancia de Excel")
         
-        # Asegurar ruta absoluta para MS Excel
-        src_absolute = src.resolve()
-        dst_absolute = dst_pdf.resolve()
-        
-        logger.debug(f"Ruta absoluta origen: {src_absolute}")
-        logger.debug(f"Ruta absoluta destino: {dst_absolute}")
-        
-        # Abrir libro (funciona tanto para .xls como .xlsx)
-        wb = excel.Workbooks.Open(str(src_absolute))
-        
-        # Exportar como PDF usando ruta absoluta
-        wb.ExportAsFixedFormat(XL_TYPE_PDF, str(dst_absolute))
-        wb.Close(False)
-        
-        logger.info(f"Excel -> PDF completado: {dst_pdf.name}")
-        
-    except Exception as e:
-        logger.error(f"Error convirtiendo {src.name}: {e}")
-        raise
-    finally:
-        if excel:
-            try:
-                excel.Quit()
-            except Exception as e:
-                logger.warning(f"Error cerrando Excel: {e}")
+        try:
+            logger.info(f"Iniciando conversión Excel -> PDF (optimizada): {src.name}")
+            
+            # Asegurar ruta absoluta para MS Excel
+            src_absolute = src.resolve()
+            dst_absolute = dst_pdf.resolve()
+            
+            logger.debug(f"Ruta absoluta origen: {src_absolute}")
+            logger.debug(f"Ruta absoluta destino: {dst_absolute}")
+            
+            # Abrir libro con configuraciones optimizadas
+            wb = excel.Workbooks.Open(
+                str(src_absolute),
+                False,  # UpdateLinks
+                True,   # ReadOnly
+                None,   # Format
+                "",     # Password
+                "",     # WriteResPassword
+                True,   # IgnoreReadOnlyRecommended
+                None,   # Origin
+                None,   # Delimiter
+                False,  # Editable
+                False,  # Notify
+                None,   # Converter
+                False   # AddToMru
+            )
+            
+            # Exportar como PDF usando ruta absoluta
+            wb.ExportAsFixedFormat(XL_TYPE_PDF, str(dst_absolute))
+            wb.Close(False)
+            
+            logger.info(f"Excel -> PDF optimizado completado: {dst_pdf.name}")
+            
+        except Exception as e:
+            logger.error(f"Error convirtiendo {src.name}: {e}")
+            raise
 
 
 def copy_pdf(src: Path, dst_pdf: Path):
@@ -312,6 +413,18 @@ class App(Tk):
         self.geometry("760x560")
         self.resizable(False, False)
 
+        # Establecer icono de la ventana con logo de La Ascensión
+        try:
+            if LOGO_ASCENSION.exists():
+                from PIL import Image, ImageTk
+                # Cargar y redimensionar el logo para icono de ventana (32x32)
+                pil_image = Image.open(resource_path(LOGO_ASCENSION))
+                pil_image = pil_image.resize((32, 32), Image.Resampling.LANCZOS)
+                self.window_icon = ImageTk.PhotoImage(pil_image)
+                self.iconphoto(True, self.window_icon)
+        except Exception as e:
+            logger.warning(f"No se pudo cargar icono de ventana: {e}")
+
         ensure_dirs()
 
         # Header centrado con versión y logo de Expansión
@@ -326,7 +439,7 @@ class App(Tk):
         Label(center_frame, text=f"Versión {APP_VERSION}", 
               font=("Segoe UI", 9)).pack(pady=(0, 4))
 
-        # Logo de Expansión centrado
+        # Logo de Expansión centrado (mantener original)
         try:
             if LOGO_EXPANSION.exists():
                 self.logo_expansion = PhotoImage(file=resource_path(LOGO_EXPANSION))
@@ -457,20 +570,35 @@ class App(Tk):
         # conversión
         self.progress["value"] = 0
         self.progress["maximum"] = len(files)
+        
+        # Mostrar información de progreso
+        self.title(f"Procesando ({len(files)} archivos)...")
 
         converted: list[Path] = []
         for idx, f in enumerate(files, 1):
+            # Actualizar título con archivo actual
+            self.title(f"Procesando {idx}/{len(files)}: {f.name[:30]}...")
             self.progress["value"] = idx - 1
             self.progress.update()
+            
+            start_time = time.perf_counter()
             pdf = convert_to_pdf(f)
+            conversion_time = time.perf_counter() - start_time
+            
             if pdf:
                 converted.append(pdf)
+                logger.info(f"Conversión completada en {conversion_time:.2f}s: {f.name}")
+            else:
+                logger.error(f"Conversión fallida en {conversion_time:.2f}s: {f.name}")
 
         self.progress["value"] = len(files)
         self.progress.update()
+        self.title("Consolidador de Archivos a PDF")  # Restaurar título original
 
         if not converted:
             messagebox.showerror("Error", "No se pudo convertir ninguno de los archivos. Revise el log.")
+            # limpiar instancias COM en caso de error
+            cleanup_office_instances()
             # re-habilita si aún hay archivos (para reintentar)
             if list_input_files():
                 self.btn_convert.configure(state="normal")
@@ -488,6 +616,8 @@ class App(Tk):
                 "Falló la unión de PDFs.\n"
                 "Verifica que el archivo de salida no esté abierto y vuelve a intentarlo."
             )
+            # limpiar instancias COM en caso de error
+            cleanup_office_instances()
             # re-habilita si hay archivos para reintentar
             if list_input_files():
                 self.btn_convert.configure(state="normal")
@@ -495,6 +625,8 @@ class App(Tk):
         finally:
             # limpiar temporales
             shutil.rmtree(TEMP_DIR, ignore_errors=True)
+            # limpiar instancias COM reutilizables para liberar memoria
+            cleanup_office_instances()
 
         logger.info(f"Proceso completo -> {out_path}")
         messagebox.showinfo("Listo", f"PDF consolidado creado:\n{out_path.resolve()}")
@@ -545,3 +677,6 @@ if __name__ == "__main__":
     except Exception as e:
         logger.exception(f"Fallo crítico: {e}")
         raise
+    finally:
+        # Asegurar limpieza de instancias COM al cerrar aplicación
+        cleanup_office_instances()
