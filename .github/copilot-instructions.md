@@ -153,6 +153,7 @@ def function_name(param1: str, param2: int) -> bool:
 - **Testing**: Probar el `.exe` generado antes de distribución
 - **Versionado**: Actualizar archivo `VERSION` con cada release
 - **SharePoint**: Subir archivo comprimido al repositorio corporativo para distribución
+- **Limpieza obligatoria**: Eliminar archivos de prueba fallidos o con formato incorrecto de `releases/`
 
 ### Flujo de Distribución Corporativa
 1. **Build**: Ejecutar `scripts\build_exe.bat` (genera ejecutable + ZIP automático)
