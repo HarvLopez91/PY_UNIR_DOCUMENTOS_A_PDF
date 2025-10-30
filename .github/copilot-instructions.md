@@ -123,7 +123,7 @@ def function_name(param1: str, param2: int) -> bool:
 
 ### Entrada
 - **PDF**: `.pdf` - Procesamiento directo con pypdf
-- **Office**: `.doc`, `.docx`, `.xlsx` - Conversión via COM automation (Windows)
+- **Office**: `.doc`, `.docx`, `.xls`, `.xlsx` - Conversión via COM automation (Windows)
 - **Imágenes**: `.jpg`, `.jpeg`, `.png`, `.tif`, `.tiff` - Conversión con img2pdf
 
 ### Salida
