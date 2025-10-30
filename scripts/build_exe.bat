@@ -65,6 +65,16 @@ if not exist "dist\data\output" mkdir "dist\data\output"
 if not exist "dist\temp" mkdir "dist\temp"
 if not exist "dist\logs" mkdir "dist\logs"
 
+REM Copiar assets (imágenes) al directorio de distribución
+echo 🖼️  Copiando assets...
+if exist "assets" (
+    if not exist "dist\assets" mkdir "dist\assets"
+    copy "assets\*.*" "dist\assets\" >nul
+    echo ✅ Assets copiados exitosamente
+) else (
+    echo ⚠️  Carpeta assets no encontrada, saltando copia
+)
+
 REM Copiar README de datos general
 if exist "data\README.md" (
     copy "data\README.md" "dist\data\" >nul
