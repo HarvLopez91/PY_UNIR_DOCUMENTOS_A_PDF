@@ -17,7 +17,20 @@ Aplicación de escritorio para consolidar múltiples documentos de diferentes fo
 - **Python**: 3.8 o superior
 - **Microsoft Office**: Word y Excel (para conversión de documentos .docx/.xlsx)
 
-## 🛠️ Instalación
+## � Descarga para Usuarios Finales
+
+### Descarga Directa (Recomendada para Usuarios)
+
+**📂 Enlace de Descarga**: [Por favor proporciona el enlace de SharePoint donde se alojará el archivo]
+
+1. **Descargar**: Descarga el archivo `PDFConsolidator_v1.2.1_YYYYMMDD_HHMM.zip` desde SharePoint
+2. **Extraer**: Descomprime el archivo en tu carpeta preferida
+3. **Ejecutar**: Doble clic en `PDFConsolidator.exe` para iniciar la aplicación
+4. **Usar**: No requiere instalación adicional, funciona directamente
+
+> **Nota**: La aplicación incluye todos los recursos necesarios (logos, assets) y está lista para usar inmediatamente.
+
+## �🛠️ Instalación
 
 ### Opción 1: Configuración automática (Recomendada)
 

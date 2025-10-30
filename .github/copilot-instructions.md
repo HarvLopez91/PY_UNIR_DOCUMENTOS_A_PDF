@@ -139,17 +139,27 @@ def function_name(param1: str, param2: int) -> bool:
 
 ### Modo Usuario (Distribución)
 1. **Generar ejecutable**: Usar `scripts\build_exe.bat` tras cada cambio
-2. **Carpeta dist**: Contiene la distribución completa para usuarios finales
-3. **Estructura dist**: `PDFConsolidator.exe` + carpetas `data/`, `temp/`, `logs/`
-4. **Entrega**: Comprimir carpeta `dist/` completa y entregar al usuario
-5. **Instalación**: Usuario descomprime y ejecuta `PDFConsolidator.exe`
+2. **Compresión automática**: El script genera automáticamente un archivo ZIP timestamped en `releases/`
+3. **Estructura dist**: `PDFConsolidator.exe` + carpetas `data/`, `temp/`, `logs/`, `assets/`
+4. **Archivo de distribución**: `releases/PDFConsolidator_v1.2.1_YYYYMMDD_HHMM.zip`
+5. **Subida a SharePoint**: Cargar el archivo ZIP al SharePoint corporativo
+6. **Instalación**: Usuario descarga, descomprime y ejecuta `PDFConsolidator.exe`
 
 ### Política de Distribución
 - **OBLIGATORIO**: Generar nuevo `.exe` tras cada modificación de código
-- **Carpeta dist**: Es la versión completa para usuarios finales (no desarrolladores)
+- **Carpeta releases**: Contiene archivos ZIP timestamped listos para SharePoint
+- **Compresión automática**: `scripts\build_exe.bat` genera ZIP automáticamente
+- **Nomenclatura**: `PDFConsolidator_v{VERSION}_{TIMESTAMP}.zip`
 - **Testing**: Probar el `.exe` generado antes de distribución
-- **Versionado**: Actualizar `APP_VERSION` en `main.py` con cada release
-- **Documentación**: README.md específico incluido en `dist/` para usuarios
+- **Versionado**: Actualizar archivo `VERSION` con cada release
+- **SharePoint**: Subir archivo comprimido al repositorio corporativo para distribución
+
+### Flujo de Distribución Corporativa
+1. **Build**: Ejecutar `scripts\build_exe.bat` (genera ejecutable + ZIP automático)
+2. **Ubicación**: Archivo ZIP creado en carpeta `releases/` del directorio raíz
+3. **SharePoint**: Subir ZIP al SharePoint corporativo de La Ascensión S.A.
+4. **Enlace**: Obtener enlace público para usuarios finales
+5. **Documentación**: Referenciar enlace en README.md para descarga
 
 ## Convenciones de Commit
 

@@ -113,6 +113,40 @@ echo.
 echo 📋 Contenido de distribución:
 dir /b dist
 echo.
-echo 🚀 Listo para distribución. Comprima la carpeta 'dist' y entregue al usuario.
+
+REM Crear carpeta de releases si no existe
+if not exist "releases" mkdir "releases"
+
+REM Generar archivo comprimido para distribución
+echo 📦 Generando archivo comprimido para distribución...
+set "timestamp=%date:~10,4%%date:~4,2%%date:~7,2%_%time:~0,2%%time:~3,2%"
+set "timestamp=%timestamp: =0%"
+set "release_name=PDFConsolidator_v1.2.1_%timestamp%.zip"
+powershell -command "Compress-Archive -Path 'dist\*' -DestinationPath 'releases\%release_name%' -Force"
+
+if errorlevel 1 (
+    echo ❌ ERROR: No se pudo generar el archivo comprimido
+    echo ℹ️  Intentando con método alternativo...
+    cd dist
+    tar -a -c -f "..\releases\%release_name%" *
+    cd ..
+    if errorlevel 1 (
+        echo ❌ ERROR: Falló la compresión alternativa
+        echo 📁 Distribución lista en carpeta 'dist\' (sin comprimir)
+        goto :skip_compression
+    )
+)
+
+echo ✅ Archivo comprimido generado: releases\%release_name%
+echo.
+echo 📁 Archivo listo para distribución:
+echo    📂 releases\%release_name%
+echo.
+echo 🌐 PRÓXIMO PASO: Subir archivo a SharePoint corporativo
+echo    👉 Por favor proporciona el enlace donde se alojará este archivo
+
+:skip_compression
+echo.
+echo 🚀 Proceso completado. Distribución lista.
 echo.
 pause
