@@ -158,8 +158,8 @@ def function_name(param1: str, param2: int) -> bool:
 1. **Build**: Ejecutar `scripts\build_exe.bat` (genera ejecutable + ZIP automático)
 2. **Ubicación**: Archivo ZIP creado en carpeta `releases/` del directorio raíz
 3. **SharePoint**: Subir ZIP al SharePoint corporativo de La Ascensión S.A.
-4. **Enlace**: Obtener enlace público para usuarios finales
-5. **Documentación**: Referenciar enlace en README.md para descarga
+4. **Enlace**: Enlace público: https://laascension.sharepoint.com/:u:/g/BI/Ea9WJHSC97lFrK-A7iL03FkBrd9lwczhr6JwCFbKd1am0g?e=InYW4w
+5. **Documentación**: Enlace referenciado en README.md para descarga de usuarios
 
 ## Convenciones de Commit
 
