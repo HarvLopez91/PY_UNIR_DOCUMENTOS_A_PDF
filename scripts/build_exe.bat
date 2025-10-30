@@ -46,10 +46,10 @@ if not exist "assets\icon.ico" (
     set ICON_ARG=--icon=assets\icon.ico
 )
 
-REM Generar ejecutable incluyendo assets
+REM Generar ejecutable incluyendo assets y VERSION
 echo 🔨 Generando ejecutable...
 echo.
-pyinstaller --onefile --windowed %ICON_ARG% --add-data "assets;assets" --name="PDFConsolidator" main.py
+pyinstaller --onefile --windowed %ICON_ARG% --add-data "assets;assets" --add-data "VERSION;." --name="PDFConsolidator" main.py
 
 if errorlevel 1 (
     echo ❌ ERROR: No se pudo generar el ejecutable
